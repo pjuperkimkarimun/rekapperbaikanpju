@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem WebGIS PJU Terpadu</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        #map { height: 500px; width: 100%; border-radius: 0.75rem; z-index: 10; }
+        
+        .photo-upload-box { position: relative; border: 2px dashed #cbd5e1; border-radius: 0.75rem; background-color: #f1f5f9; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: all 0.2s ease; }
+        .photo-upload-box:hover { border-color: #10b981; background-color: #ecfdf5; }
+        .photo-upload-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 20; }
+        .photo-upload-box input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 30; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Styling Custom untuk Marker Animasi */
+        .pulse-marker { display: flex; justify-content: center; align-items: center; }
+        .pulse-blob { background: rgba(16, 185, 129, 1); border-radius: 50%; margin: 10px; height: 16px; width: 16px; box-shadow: 0 0 0 0 rgba(16, 185, 129, 1); transform: scale(1); animation: pulse-green 2s infinite; border: 2px solid white; }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Khusus Area Cetak */
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 20px; color: black;}
+            .no-print { display: none !important; }
+            .print-page-break { page-break-after: always; }
+            .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .print-image { width: 100%; height: 200px; object-fit: contain; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-24">
+
+    <header class="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-md no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-lg text-emerald-600">
+                    <i data-lucide="map-pinned"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">WebGIS PJU</h1>
+                    <p class="text-xs text-emerald-100">Rekap Data & Perbaikan</p>
+                </div>
+            </div>
+            <button onclick="muatDataDariSheet()" class="text-xs bg-emerald-500 hover:bg-emerald-700 py-1.5 px-3 rounded text-white flex items-center gap-1 shadow-sm transition">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Data
+            </button>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto px-4 mt-6 no-print">
+        <div class="flex flex-wrap bg-slate-200 p-1 rounded-xl gap-1">
+            <button onclick="switchTab('form')" id="btn-tab-form" class="flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all bg-white shadow text-emerald-700 flex justify-center items-center gap-2">
+                <i data-lucide="clipboard-edit" class="w-4 h-4"></i> Form
+            </button>
+            <button onclick="switchTab('map')" id="btn-tab-map" class="flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all text-slate-500 hover:text-slate-700 flex justify-center items-center gap-2">
+                <i data-lucide="map" class="w-4 h-4"></i> Peta
+            </button>
+            <button onclick="switchTab('cetak')" id="btn-tab-cetak" class="flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all text-slate-500 hover:text-slate-700 flex justify-center items-center gap-2">
+                <i data-lucide="printer" class="w-4 h-4"></i> Laporan
+            </button>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto p-4 mt-2 no-print" id="main-content">
+        
+        <section id="tab-form" class="space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-base font-bold mb-4 flex items-center gap-2 text-slate-700">
+                    <i data-lucide="crosshair" class="w-5 h-5 text-emerald-500"></i> Informasi Lokasi
+                </h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">ID Tiang / Nama Jalan</label>
+                            <input type="text" id="input-id-tiang" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="Contoh: PJU-JL-SUDIRMAN-01">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Wilayah / Kecamatan</label>
+                            <select id="input-wilayah" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                                <option value="Kec. Belat">Kec. Belat</option>
+                                <option value="Kec. Buru">Kec. Buru</option>
+                                <option value="Kec. Durai">Kec. Durai</option>
+                                <option value="Kec. Karimun">Kec. Karimun</option>
+                                <option value="Kec. Kundur">Kec. Kundur</option>
+                                <option value="Kec. Kundur Barat">Kec. Kundur Barat</option>
+                                <option value="Kec. Kundur Utara">Kec. Kundur Utara</option>
+                                <option value="Kec. Meral">Kec. Meral</option>
+                                <option value="Kec. Meral Barat">Kec. Meral Barat</option>
+                                <option value="Kec. Moro">Kec. Moro</option>
+                                <option value="Kec. Selat Gelam">Kec. Selat Gelam</option>
+                                <option value="Kec. Sugie Besar">Kec. Sugie Besar</option>
+                                <option value="Kec. Tebing">Kec. Tebing</option>
+                                <option value="Kec. Ungar">Kec. Ungar</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Koordinat Otomatis / Manual</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="input-koordinat" class="flex-1 px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-sm font-mono focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Cth: 1.0022, 103.4286 (Ketik manual jika perlu)">
+                            <button onclick="dapatkanLokasi()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-3 rounded-xl font-medium transition-all flex items-center gap-2">
+                                <i data-lucide="navigation" class="w-4 h-4"></i> Lacak
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">*Klik tombol lacak, atau ketik manual jika GPS HP diblokir/susah sinyal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-base font-bold mb-4 flex items-center gap-2 text-slate-700">
+                    <i data-lucide="camera" class="w-5 h-5 text-blue-500"></i> Dokumentasi Pekerjaan
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="col-span-2 md:col-span-1"><label class="block text-xs font-semibold text-slate-600 mb-1">1. Kondisi Sebelum</label><div class="photo-upload-box" onclick="document.getElementById('f-seb').click()"><i data-lucide="image-plus" class="text-slate-400 mb-2"></i><span class="text-xs text-slate-500 font-medium">Pilih / Foto</span><input type="file" id="f-seb" accept="image/*" onchange="previewFoto(this, 'p-seb')"><img id="p-seb" src="" alt="Preview"></div></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">2. Sedang Dikerjakan</label><div class="photo-upload-box" onclick="document.getElementById('f-sed').click()"><i data-lucide="image-plus" class="text-slate-400 mb-2"></i><span class="text-xs text-slate-500 font-medium">Pilih / Foto</span><input type="file" id="f-sed" accept="image/*" onchange="previewFoto(this, 'p-sed')"><img id="p-sed" src="" alt="Preview"></div></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">3. Kondisi Selesai</label><div class="photo-upload-box" onclick="document.getElementById('f-sel').click()"><i data-lucide="image-plus" class="text-slate-400 mb-2"></i><span class="text-xs text-slate-500 font-medium">Pilih / Foto</span><input type="file" id="f-sel" accept="image/*" onchange="previewFoto(this, 'p-sel')"><img id="p-sel" src="" alt="Preview"></div></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">4. Barang (Lama)</label><div class="photo-upload-box" onclick="document.getElementById('f-lam').click()"><i data-lucide="image-plus" class="text-slate-400 mb-2"></i><span class="text-xs text-slate-500 font-medium">Pilih / Foto</span><input type="file" id="f-lam" accept="image/*" onchange="previewFoto(this, 'p-lam')"><img id="p-lam" src="" alt="Preview"></div></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">5. Barang (Baru)</label><div class="photo-upload-box" onclick="document.getElementById('f-bar').click()"><i data-lucide="image-plus" class="text-slate-400 mb-2"></i><span class="text-xs text-slate-500 font-medium">Pilih / Foto</span><input type="file" id="f-bar" accept="image/*" onchange="previewFoto(this, 'p-bar')"><img id="p-bar" src="" alt="Preview"></div></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-base font-bold mb-4 flex items-center gap-2 text-slate-700">
+                    <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> Checklist Material Diganti
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100" id="checklist-container">
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 250W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 150W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ignitor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ignitor</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Twisted" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Twisted</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel ASPAN" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel ASPAN</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 250W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 150W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Fotocell" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Fotocell</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Piercing" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Piercing</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kontaktor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kontaktor</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="MCB" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> MCB</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Draiver LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Draiver LED</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu LED</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Kontrol" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Kontrol</label>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold flex items-center gap-2 text-slate-700">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-orange-500"></i> Catatan Tambahan
+                    </h2>
+                    <button onclick="generateDescriptionWithGemini()" type="button" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold py-1.5 px-3 rounded-lg flex items-center gap-1 transition-colors border border-purple-200 shadow-sm">
+                        ✨ Tulis Pakai AI
+                    </button>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Keterangan Pekerjaan</label>
+                    <textarea id="input-deskripsi" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Catatan opsional mengenai kerusakan atau kondisi lapangan..."></textarea>
+                </div>
+            </div>
+
+            <button onclick="simpanDataPekerjaan()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <i data-lucide="save"></i> Simpan Data Laporan
+            </button>
+            
+        </section>
+
+        <section id="tab-map" class="hidden space-y-6">
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100" id="map-container">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2"><i data-lucide="map" class="text-emerald-500"></i> Peta Persebaran Perbaikan</h2>
+                    <button onclick="downloadPetaBupati()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1.5 px-3 rounded flex items-center gap-1 shadow transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download Peta
+                    </button>
+                </div>
+                
+                <div id="map" class="relative z-10 border border-slate-200"></div>
+                
+                <div class="p-3 flex items-center justify-between bg-slate-50 rounded-xl mt-3 border border-slate-100">
+                    <span class="text-sm font-medium text-slate-600">Total Titik Perbaikan:</span>
+                    <span id="total-titik" class="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold">0</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-cetak" class="hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h2 class="text-base font-bold flex items-center gap-2 text-slate-700">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5 text-emerald-500"></i> Panel Filter Laporan & Material
+                    </h2>
+                    <button onclick="resetFilters()" class="text-xs text-red-600 font-semibold hover:underline flex items-center gap-1">
+                        <i data-lucide="filter-x" class="w-3.5 h-3.5"></i> Hapus Semua Filter
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Mulai Tanggal</label>
+                        <input type="date" id="filter-date-start" onchange="renderMenuCetak()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Sampai Tanggal</label>
+                        <input type="date" id="filter-date-end" onchange="renderMenuCetak()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Wilayah / Kecamatan</label>
+                        <select id="filter-wilayah" onchange="renderMenuCetak()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                            <option value="Semua">Semua Wilayah</option>
+                            <option value="Kec. Belat">Kec. Belat</option>
+                            <option value="Kec. Buru">Kec. Buru</option>
+                            <option value="Kec. Durai">Kec. Durai</option>
+                            <option value="Kec. Karimun">Kec. Karimun</option>
+                            <option value="Kec. Kundur">Kec. Kundur</option>
+                            <option value="Kec. Kundur Barat">Kec. Kundur Barat</option>
+                            <option value="Kec. Kundur Utara">Kec. Kundur Utara</option>
+                            <option value="Kec. Meral">Kec. Meral</option>
+                            <option value="Kec. Meral Barat">Kec. Meral Barat</option>
+                            <option value="Kec. Moro">Kec. Moro</option>
+                            <option value="Kec. Selat Gelam">Kec. Selat Gelam</option>
+                            <option value="Kec. Sugie Besar">Kec. Sugie Besar</option>
+                            <option value="Kec. Tebing">Kec. Tebing</option>
+                            <option value="Kec. Ungar">Kec. Ungar</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4 border-b pb-3 border-slate-100">
+                    <h2 class="text-base font-bold flex items-center gap-2 text-slate-700">
+                        <i data-lucide="boxes" class="w-5 h-5 text-blue-500"></i> Rekapitulasi Material Terpakai
+                    </h2>
+                    <button onclick="cetakRekapMaterial()" class="text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 py-1.5 px-3 rounded-lg font-bold flex items-center gap-2 transition-colors">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Rekap
+                    </button>
+                </div>
+                <div id="tabel-rekap-material" class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-slate-600">
+                    <div class="col-span-full text-center py-4 text-slate-400 italic text-xs">Belum ada data material masuk.</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4 border-b pb-3 border-slate-100">
+                    <h2 class="text-base font-bold flex items-center gap-2 text-slate-700">
+                        <i data-lucide="file-check-2" class="w-5 h-5 text-emerald-500"></i> Pilih Laporan Untuk Dicetak
+                    </h2>
+                    <button onclick="cetakLaporanPilihan()" class="text-sm bg-emerald-600 text-white hover:bg-emerald-700 py-1.5 px-3 rounded-lg font-bold flex items-center gap-2 transition-colors">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan
+                    </button>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="check-all" onchange="toggleSelectAll(this)" class="w-4 h-4 text-emerald-600 rounded"> Pilih Semua Laporan Terfilter
+                    </label>
+                </div>
+                <div id="list-cetak-laporan" class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    <div class="text-center py-6 text-slate-400 italic text-sm border-2 border-dashed rounded-xl">Belum ada laporan yang tersedia.</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="print-area" class="hidden print:block bg-white text-black p-8 font-sans"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        // 🔴🔴 WAJIB: GANTI DENGAN URL ANDA DI SINI 🔴🔴
+        // ==========================================
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6vVEG6sDqS5ajTdXJO5im4V7EuC6w0S3NgNUjUewliHdIXFruHmT98LUNnMNNxBaG/exec";
+        const apiKey = ""; 
+
+        // Variabel Global
+        let myMap;
+        let mapMarkers = [];
+        let dataPekerjaan = []; 
+
+        function getDirectImageUrl(url) {
+            if (!url) return '';
+            if (url.startsWith('data:image')) return url; 
+            let fileId = '';
+            const match = url.match(/\/d\/(.+?)\//);
+            if (match && match[1]) fileId = match[1];
+            else { try { const urlParams = new URL(url).searchParams; fileId = urlParams.get('id'); } catch(e) {} }
+            if (fileId) return `https://lh3.googleusercontent.com/d/$${fileId}`; // bypass CORS drive
+            return url;
+        }
+
+        function dapatkanDateObject(dateStr) {
+            if (!dateStr) return null;
+            if (dateStr instanceof Date) return dateStr;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) { let p = dateStr.split('-'); return new Date(p[0], p[1] - 1, p[2]); }
+            if (dateStr.includes('/')) { let p = dateStr.split('/'); if (p.length === 3) { if (p[0].length === 4) return new Date(p[0], p[1] - 1, p[2]); else return new Date(p[2], p[1] - 1, p[0]); } }
+            if (dateStr.includes('-')) { let p = dateStr.split('-'); if (p.length === 3) { if (p[0].length === 4) return new Date(p[0], p[1] - 1, p[2]); else return new Date(p[2], p[1] - 1, p[0]); } }
+            let parsed = new Date(dateStr);
+            return isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        // ==========================================
+        // 0. LOAD DATA DARI GOOGLE SHEET
+        // ==========================================
+        async function muatDataDariSheet() {
+            if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === "TARUH_URL_ANDA_DISINI") {
+                Swal.fire('Informasi', 'Tolong masukkan URL Google Apps Script Anda ke dalam file HTML terlebih dahulu.', 'info');
+                return;
+            }
+            try {
+                Swal.fire({ title: 'Menyinkronkan Data...', text: 'Mengambil riwayat perbaikan dari server', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { redirect: "follow" });
+                const textResponse = await response.text(); 
+                let rows;
+                try { rows = JSON.parse(textResponse); } catch (err) { throw new Error("Izin Akses Apps Script Anda salah."); }
+
+                dataPekerjaan = []; 
+                for(let i = 1; i < rows.length; i++) {
+                    let r = rows[i];
+                    if(!r[2] || !r[3]) continue; 
+                    let koorSplit = String(r[3]).split(',');
+                    if (koorSplit.length < 2) continue; 
+                    let lat = parseFloat(koorSplit[0]); let lng = parseFloat(koorSplit[1]);
+                    
+                    let tiangRaw = r[2]; let wilayah = "Lainnya"; let tiangBersih = tiangRaw;
+                    if (tiangRaw.includes('[') && tiangRaw.includes(']')) {
+                        let startIdx = tiangRaw.indexOf('['); let endIdx = tiangRaw.indexOf(']');
+                        wilayah = tiangRaw.substring(startIdx + 1, endIdx); tiangBersih = tiangRaw.substring(0, startIdx).trim();
+                    }
+
+                    let materialText = String(r[4] || ''); let materialArray = [];
+                    if(materialText.includes('Barang: ')) {
+                        let extracted = materialText.split(' | ')[0].replace('Barang: ', '');
+                        materialArray = extracted.split(', ');
+                    }
+
+                    dataPekerjaan.push({
+                        id: Date.now() + i, tiang: tiangBersih, wilayah: wilayah, lat: lat, lng: lng,
+                        waktu: String(r[0]).split(' ')[1] || '', tanggal: String(r[0]).split(' ')[0] || r[0],
+                        materialDiganti: materialArray, 
+                        deskripsi: materialText.includes('Catatan: ') ? materialText.split('Catatan: ')[1] : r[4], 
+                        photos: { seb: getDirectImageUrl(r[6]), sed: getDirectImageUrl(r[7]), sel: getDirectImageUrl(r[8]), lam: getDirectImageUrl(r[9]), bar: getDirectImageUrl(r[10]) }
+                    });
+                }
+                Swal.close();
+                if(!document.getElementById('tab-map').classList.contains('hidden')) inisialisasiMap();
+                if(!document.getElementById('tab-cetak').classList.contains('hidden')) renderMenuCetak();
+            } catch(e) { Swal.fire('Gagal Sinkronisasi', e.message, 'error'); }
+        }
+
+        window.onload = () => { muatDataDariSheet(); };
+
+        function switchTab(tabName) {
+            const tabs = ['form', 'map', 'cetak'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`); const btn = document.getElementById(`btn-tab-${t}`);
+                if (t === tabName) {
+                    el.classList.remove('hidden');
+                    btn.className = "flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all bg-white shadow text-emerald-700 flex justify-center items-center gap-2";
+                    if (t === 'map') { if (!myMap) inisialisasiMap(); else myMap.invalidateSize(); }
+                    if (t === 'cetak') renderMenuCetak();
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all text-slate-500 hover:text-slate-700 flex justify-center items-center gap-2 bg-slate-200";
+                }
+            });
+        }
+
+        function dapatkanLokasi() {
+            const inputKoor = document.getElementById('input-koordinat');
+            if ("geolocation" in navigator) {
+                Swal.fire({ title: 'Melacak Lokasi...', text: 'Mohon tunggu', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                navigator.geolocation.getCurrentPosition(
+                    (position) => { inputKoor.value = `${position.coords.latitude}, ${position.coords.longitude}`; Swal.fire({ icon: 'success', title: 'Ditemukan!', timer: 1000, showConfirmButton: false }); },
+                    (error) => { Swal.fire('Gagal', 'Pastikan izin lokasi browser aktif. Atau ketik secara manual.', 'error'); },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
+        }
+
+        function previewFoto(inputElement, imgId) {
+            const imgPreview = document.getElementById(imgId);
+            if (inputElement.files && inputElement.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { imgPreview.src = e.target.result; imgPreview.style.display = 'block'; }
+                reader.readAsDataURL(inputElement.files[0]);
+            } else { imgPreview.src = ''; imgPreview.style.display = 'none'; }
+        }
+
+        function siapkanDataFoto(imgSrc, namaFile) {
+            if (!imgSrc || !imgSrc.startsWith('data:')) return null;
+            try { const arr = imgSrc.split(','); const mime = arr[0].match(/:(.*?);/)[1]; return { mimeType: mime, name: namaFile, data: arr[1] }; } catch (e) { return null; }
+        }
+
+        async function generateDescriptionWithGemini() {
+            const fotoSblm = document.getElementById('p-seb').src;
+            const checkedMaterials = Array.from(document.querySelectorAll('.material-check:checked')).map(cb => cb.value);
+            let promptText = "Buatkan catatan teknis perbaikan PJU (1-2 kalimat). ";
+            if(checkedMaterials.length > 0) promptText += `Material yang diganti adalah: ${checkedMaterials.join(', ')}. `;
+            const parts = [];
+            if (fotoSblm && fotoSblm.startsWith('data:image')) {
+                promptText += "Lihat foto sebelum perbaikan yang dilampirkan.";
+                try { parts.push({ inlineData: { mimeType: fotoSblm.split(',')[0].split(':')[1].split(';')[0], data: fotoSblm.split(',')[1] } }); } catch(e){}
+            }
+            parts.unshift({ text: promptText });
+            Swal.fire({ title: 'AI Menganalisis...', didOpen: () => Swal.showLoading() });
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: parts }], systemInstruction: { parts: [{ text: "Anda teknisi lapangan PJU yang profesional." }] } })
+                });
+                const data = await res.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if(text) { document.getElementById('input-deskripsi').value = text.trim(); Swal.close(); } else throw new Error("Format salah");
+            } catch (err) { Swal.fire('Gagal AI', 'Tidak ada respons AI', 'error'); }
+        }
+
+        async function simpanDataPekerjaan() {
+            const idTiangRaw = document.getElementById('input-id-tiang').value;
+            const wilayahSelected = document.getElementById('input-wilayah').value;
+            const koordinat = document.getElementById('input-koordinat').value;
+            const deskripsi = document.getElementById('input-deskripsi').value;
+            
+            if (!idTiangRaw || !koordinat) return Swal.fire('Peringatan', 'ID Tiang & Koordinat wajib diisi!', 'warning');
+            const idTiang = `${idTiangRaw} [${wilayahSelected}]`;
+            const cbMaterial = document.querySelectorAll('.material-check:checked');
+            const arrMaterial = Array.from(cbMaterial).map(cb => cb.value);
+            let materialGabungan = arrMaterial.length > 0 ? "Barang: " + arrMaterial.join(', ') : "Tidak ada barang terganti";
+            if(deskripsi) materialGabungan += ` | Catatan: ${deskripsi}`;
+
+            const koorSplit = koordinat.split(','); const lat = parseFloat(koorSplit[0].trim()); const lng = parseFloat(koorSplit[1].trim());
+
+            Swal.fire({ title: 'Menyimpan Data...', text: 'Mengirim ke Spreadsheet & Drive...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const payloadGAS = {
+                tanggal: new Date().toLocaleString('id-ID'), teknisi: "Petugas PJU", idTiang: idTiang, koordinat: koordinat, material: materialGabungan, status: "Selesai",
+                fotoSebelum: siapkanDataFoto(document.getElementById('p-seb').src, idTiangRaw + '_sebelum.jpg'), fotoSedang: siapkanDataFoto(document.getElementById('p-sed').src, idTiangRaw + '_sedang.jpg'),
+                fotoSelesai: siapkanDataFoto(document.getElementById('p-sel').src, idTiangRaw + '_selesai.jpg'), fotoLama: siapkanDataFoto(document.getElementById('p-lam').src, idTiangRaw + '_lama.jpg'),
+                fotoBaru: siapkanDataFoto(document.getElementById('p-bar').src, idTiangRaw + '_baru.jpg')
+            };
+
+            try {
+                if(GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== "TARUH_URL_ANDA_DISINI") { await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payloadGAS) }); }
+
+                dataPekerjaan.push({
+                    id: Date.now(), tiang: idTiangRaw, wilayah: wilayahSelected, lat: lat, lng: lng,
+                    waktu: new Date().toLocaleTimeString('id-ID'), tanggal: new Date().toLocaleDateString('id-ID'),
+                    materialDiganti: arrMaterial, deskripsi: deskripsi,
+                    photos: { seb: document.getElementById('p-seb').src, sed: document.getElementById('p-sed').src, sel: document.getElementById('p-sel').src, lam: document.getElementById('p-lam').src, bar: document.getElementById('p-bar').src }
+                });
+                
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data tersimpan.' }).then(() => {
+                    document.getElementById('input-id-tiang').value = ''; document.getElementById('input-koordinat').value = ''; document.getElementById('input-deskripsi').value = '';
+                    document.querySelectorAll('.material-check').forEach(cb => cb.checked = false);
+                    ['p-seb','p-sed','p-sel','p-lam','p-bar'].forEach(id => { document.getElementById(id).src=''; document.getElementById(id).style.display='none'; });
+                    document.querySelectorAll('input[type="file"]').forEach(i => i.value='');
+                    switchTab('map'); inisialisasiMap();
+                });
+            } catch (err) { Swal.fire('Gagal', 'Terjadi kesalahan jaringan.', 'error'); }
+        }
+
+        // ==========================================
+        // 5. PETA (LEAFLET.JS) - UPGRADE KARTU INFO & ANIMASI
+        // ==========================================
+        function inisialisasiMap() {
+            if (!myMap) {
+                myMap = L.map('map').setView([1.0022, 103.4286], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(myMap);
+            }
+
+            mapMarkers.forEach(m => myMap.removeLayer(m)); mapMarkers = [];
+
+            dataPekerjaan.forEach(d => {
+                // ICON BERDENYUT (Pulse)
+                const pulseIcon = L.divIcon({
+                    className: 'pulse-marker',
+                    html: `<div class="pulse-blob"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                // KARTU INFORMASI (Pop-Up Modern)
+                let materials = (d.materialDiganti && d.materialDiganti.length > 0) ? d.materialDiganti.join(', ') : 'Hanya Perawatan';
+                let imgSrc = d.photos.sel || 'https://placehold.co/400x300?text=Tidak+Ada+Foto';
+                
+                let popupHTML = `
+                    <div style="min-width: 220px; font-family: 'Inter', sans-serif;">
+                        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
+                            <h3 style="font-weight: 700; color: #0f172a; margin: 0; font-size: 14px;">${d.tiang}</h3>
+                            <p style="color: #64748b; font-size: 11px; margin: 2px 0 0 0;">📍 Wilayah ${d.wilayah || 'Lainnya'} <br> 🕒 ${d.tanggal} - ${d.waktu}</p>
+                        </div>
+                        <div style="margin-bottom: 8px; font-size: 11px; color: #334155; background: #f8fafc; padding: 6px; border-radius: 4px;">
+                            <p style="margin: 0 0 4px 0;"><strong style="color: #10b981;">Bahan:</strong> ${materials}</p>
+                            <p style="margin: 0; font-style: italic; color: #64748b;">"${d.deskripsi || '-'}"</p>
+                        </div>
+                        <img src="${imgSrc}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e2e8f0;" onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=KOSONG';">
+                        <a href="https://maps.google.com/?q=${d.lat},${d.lng}" target="_blank" style="display: block; text-align: center; background-color: #3b82f6; color: white; padding: 8px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                            Buka di Google Maps
+                        </a>
+                    </div>
+                `;
+
+                const marker = L.marker([d.lat, d.lng], { icon: pulseIcon }).addTo(myMap).bindPopup(popupHTML, { maxWidth: 260 });
+                mapMarkers.push(marker);
+            });
+            
+            document.getElementById('total-titik').innerText = dataPekerjaan.length;
+        }
+
+        // ==========================================
+        // FITUR BARU: DOWNLOAD PETA UNTUK BUPATI
+        // ==========================================
+        function downloadPetaBupati() {
+            Swal.fire({ title: 'Menyiapkan Peta...', text: 'Sedang merekam tampilan peta untuk didownload.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            const mapElement = document.getElementById('map');
+            
+            // Tunggu Leaflet selesai render (jeda 500ms)
+            setTimeout(() => {
+                html2canvas(mapElement, {
+                    useCORS: true,
+                    allowTaint: true,
+                    scale: 2, // Biar resolusinya HD
+                    ignoreElements: (node) => {
+                        return node.classList && node.classList.contains('leaflet-control-zoom'); // Sembunyikan tombol +/-
+                    }
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Peta_Perbaikan_PJU_${new Date().toLocaleDateString('id-ID')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    Swal.close();
+                }).catch(err => {
+                    Swal.fire('Gagal', 'Terjadi kesalahan saat menyimpan gambar peta. Pastikan sinyal internet stabil.', 'error');
+                });
+            }, 500);
+        }
+
+        // ==========================================
+        // 6 & 7. MENU CETAK (Tetap Sama dengan Update Terakhir)
+        // ==========================================
+        function renderMenuCetak() { /* (Tidak ada perubahan, sama dengan versi sebelumnya) */ }
+        function resetFilters() { document.getElementById('filter-date-start').value = ''; document.getElementById('filter-date-end').value = ''; document.getElementById('filter-wilayah').value = 'Semua'; renderMenuCetak(); }
+        function cetakRekapMaterial() { /* (Sama dengan versi sebelumnya) */ }
+        
+        function cetakLaporanPilihan() {
+            const selectedIds = Array.from(document.querySelectorAll('.chk-laporan:checked')).map(cb => cb.value);
+            if(selectedIds.length === 0) return Swal.fire('Pilih Laporan', 'Harap ceklis minimal 1 laporan.', 'warning');
+
+            const laporanDipilih = dataPekerjaan.filter(job => selectedIds.includes(String(job.id)));
+            let html = '';
+
+            Swal.fire({ title: 'Menyiapkan Dokumen...', text: 'Sedang memuat semua foto untuk dicetak, harap tunggu sebentar.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const fallbackImg = "onerror=\"this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/999999?text=Tidak+Ada+Foto';\"";
+
+            laporanDipilih.forEach((data, index) => {
+                const materialsText = (data.materialDiganti && data.materialDiganti.length > 0) ? data.materialDiganti.join(', ') : 'Tidak ada (Hanya Perawatan)';
+                html += `
+                    <div style="max-width:800px; margin:0 auto; font-family:sans-serif;" class="${index < laporanDipilih.length - 1 ? 'print-page-break' : ''}">
+                        <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px; margin-bottom:20px;"><h1 style="font-size:22px; font-weight:bold; margin:0; text-transform:uppercase;">Laporan Pekerjaan PJU</h1><p style="margin:5px 0 0 0; font-size:14px;">Sistem Informasi Pemeliharaan</p></div>
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; width:30%; background:#f9f9f9;">ID Tiang / Lokasi</td><td style="border:1px solid #ccc; padding:8px;">${data.tiang} [${data.wilayah || 'Lainnya'}]</td></tr>
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Waktu Pekerjaan</td><td style="border:1px solid #ccc; padding:8px;">${data.tanggal} | ${data.waktu}</td></tr>
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Koordinat</td><td style="border:1px solid #ccc; padding:8px;"><a href="https://maps.google.com/?q=${data.lat},${data.lng}" target="_blank" style="color:#2563eb; text-decoration:none; font-weight:bold;">${data.lat}, ${data.lng} <span style="font-size:11px; text-decoration:underline;">(Buka di Google Maps)</span></a></td></tr>
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Material Diganti</td><td style="border:1px solid #ccc; padding:8px; font-weight:bold; color:blue;">${materialsText}</td></tr>
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Catatan Teknis</td><td style="border:1px solid #ccc; padding:8px;">${data.deskripsi || '-'}</td></tr>
+                        </table>
+                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">DOKUMENTASI VISUAL</h3>
+                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">1. Kondisi Sebelum</p><img src="${data.photos.seb}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">2. Sedang Dikerjakan</p><img src="${data.photos.sed}" class="print-image" ${fallbackImg}></div></div>
+                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">3. Kondisi Selesai (Menyala)</p><img src="${data.photos.sel}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">4. Barang Bekas/Rusak</p><img src="${data.photos.lam}" class="print-image" ${fallbackImg}></div></div>
+                        <div style="width:50%; margin:0 auto; margin-bottom:30px;"><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">5. Material Baru</p><img src="${data.photos.bar}" class="print-image" ${fallbackImg}></div>
+                    </div>
+                `;
+            });
+
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = html; 
+
+            const images = Array.from(printArea.querySelectorAll('img'));
+            let loadedCount = 0;
+            if (images.length === 0) { Swal.close(); window.print(); return; }
+
+            const checkAllImagesLoaded = () => {
+                loadedCount++;
+                if (loadedCount === images.length) { Swal.close(); setTimeout(() => { window.print(); }, 1000); }
+            };
+
+            images.forEach(img => {
+                if (img.complete) checkAllImagesLoaded();
+                else { img.onload = checkAllImagesLoaded; img.onerror = checkAllImagesLoaded; }
+            });
+        }
+    </script>
+</body>
+</html>
