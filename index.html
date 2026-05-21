@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem WebGIS PJU Terpadu</title>
+    <title>KARIMUNKU TERANG - Monitoring Kawasan Umum</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -58,16 +58,16 @@
     <header class="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-md no-print">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-white p-2 rounded-lg text-emerald-600">
+                <div class="bg-white p-2 rounded-lg text-emerald-600 flex-shrink-0">
                     <i data-lucide="map-pinned"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">WebGIS PJU</h1>
-                    <p class="text-xs text-emerald-100">Rekap Data & Perbaikan</p>
+                    <h1 class="font-bold text-base sm:text-lg leading-tight">KARIMUNKU TERANG</h1>
+                    <p class="text-[10px] sm:text-xs text-emerald-100">Kolaborasi & Responsivitas dalam Monitoring Kawasan Umum</p>
                 </div>
             </div>
-            <button onclick="muatDataDariSheet()" class="text-xs bg-emerald-500 hover:bg-emerald-700 py-1.5 px-3 rounded text-white flex items-center gap-1 shadow-sm transition">
-                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Data
+            <button onclick="muatDataDariSheet()" class="text-xs bg-emerald-500 hover:bg-emerald-700 py-1.5 px-3 rounded text-white flex items-center gap-1 shadow-sm transition flex-shrink-0 ml-2">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i> <span class="hidden sm:inline">Refresh Data</span>
             </button>
         </div>
     </header>
@@ -310,7 +310,8 @@
             const match = url.match(/\/d\/(.+?)\//);
             if (match && match[1]) fileId = match[1];
             else { try { const urlParams = new URL(url).searchParams; fileId = urlParams.get('id'); } catch(e) {} }
-            if (fileId) return `https://lh3.googleusercontent.com/d/$${fileId}`; // bypass CORS drive
+            // Perbaikan URL Bypass gambar menggunakan HTTPS agar sesuai dengan protokol Netlify
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
             return url;
         }
 
@@ -337,7 +338,7 @@
                 const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { redirect: "follow" });
                 const textResponse = await response.text(); 
                 let rows;
-                try { rows = JSON.parse(textResponse); } catch (err) { throw new Error("Izin Akses Apps Script Anda salah."); }
+                try { rows = JSON.parse(textResponse); } catch (err) { throw new Error("Izin Akses Apps Script Anda salah. Pastikan saat Deploy, 'Siapa Saja' memiliki akses."); }
 
                 dataPekerjaan = []; 
                 for(let i = 1; i < rows.length; i++) {
@@ -485,7 +486,7 @@
         }
 
         // ==========================================
-        // 5. PETA (LEAFLET.JS) - UPGRADE KARTU INFO & ANIMASI
+        // 5. PETA (LEAFLET.JS)
         // ==========================================
         function inisialisasiMap() {
             if (!myMap) {
@@ -496,7 +497,6 @@
             mapMarkers.forEach(m => myMap.removeLayer(m)); mapMarkers = [];
 
             dataPekerjaan.forEach(d => {
-                // ICON BERDENYUT (Pulse)
                 const pulseIcon = L.divIcon({
                     className: 'pulse-marker',
                     html: `<div class="pulse-blob"></div>`,
@@ -504,7 +504,6 @@
                     iconAnchor: [10, 10]
                 });
 
-                // KARTU INFORMASI (Pop-Up Modern)
                 let materials = (d.materialDiganti && d.materialDiganti.length > 0) ? d.materialDiganti.join(', ') : 'Hanya Perawatan';
                 let imgSrc = d.photos.sel || 'https://placehold.co/400x300?text=Tidak+Ada+Foto';
                 
@@ -532,22 +531,18 @@
             document.getElementById('total-titik').innerText = dataPekerjaan.length;
         }
 
-        // ==========================================
-        // FITUR BARU: DOWNLOAD PETA UNTUK BUPATI
-        // ==========================================
         function downloadPetaBupati() {
             Swal.fire({ title: 'Menyiapkan Peta...', text: 'Sedang merekam tampilan peta untuk didownload.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             
             const mapElement = document.getElementById('map');
             
-            // Tunggu Leaflet selesai render (jeda 500ms)
             setTimeout(() => {
                 html2canvas(mapElement, {
                     useCORS: true,
                     allowTaint: true,
-                    scale: 2, // Biar resolusinya HD
+                    scale: 2, 
                     ignoreElements: (node) => {
-                        return node.classList && node.classList.contains('leaflet-control-zoom'); // Sembunyikan tombol +/-
+                        return node.classList && node.classList.contains('leaflet-control-zoom'); 
                     }
                 }).then(canvas => {
                     const link = document.createElement('a');
@@ -562,12 +557,149 @@
         }
 
         // ==========================================
-        // 6 & 7. MENU CETAK (Tetap Sama dengan Update Terakhir)
+        // 6 & 7. MENU CETAK 
         // ==========================================
-        function renderMenuCetak() { /* (Tidak ada perubahan, sama dengan versi sebelumnya) */ }
-        function resetFilters() { document.getElementById('filter-date-start').value = ''; document.getElementById('filter-date-end').value = ''; document.getElementById('filter-wilayah').value = 'Semua'; renderMenuCetak(); }
-        function cetakRekapMaterial() { /* (Sama dengan versi sebelumnya) */ }
-        
+        function renderMenuCetak() {
+            const filterStartRaw = document.getElementById('filter-date-start').value;
+            const filterEndRaw = document.getElementById('filter-date-end').value;
+            const filterWilayah = document.getElementById('filter-wilayah').value;
+
+            const filterStartDate = filterStartRaw ? dapatkanDateObject(filterStartRaw) : null;
+            const filterEndDate = filterEndRaw ? dapatkanDateObject(filterEndRaw) : null;
+
+            if (filterEndDate) {
+                filterEndDate.setHours(23, 59, 59, 999);
+            }
+
+            const dataTerfilter = dataPekerjaan.filter(job => {
+                if (filterWilayah !== 'Semua' && job.wilayah !== filterWilayah) return false;
+                if (filterStartDate || filterEndDate) {
+                    let jobDate = dapatkanDateObject(job.tanggal);
+                    if (!jobDate) return false;
+                    if (filterStartDate && jobDate < filterStartDate) return false;
+                    if (filterEndDate && jobDate > filterEndDate) return false;
+                }
+                return true;
+            });
+
+            const rekap = {};
+            dataTerfilter.forEach(job => {
+                if(job.materialDiganti && Array.isArray(job.materialDiganti)) {
+                    job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; });
+                }
+            });
+
+            const rekapContainer = document.getElementById('tabel-rekap-material');
+            rekapContainer.innerHTML = '';
+            const materialKeys = Object.keys(rekap);
+            
+            if(materialKeys.length === 0) {
+                rekapContainer.innerHTML = `<div class="col-span-full text-center py-4 text-slate-400 italic text-xs">Belum ada material yang digunakan untuk filter saat ini.</div>`;
+            } else {
+                materialKeys.forEach(mat => {
+                    rekapContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+                            <span class="font-medium">${mat}</span>
+                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">${rekap[mat]}x</span>
+                        </div>
+                    `;
+                });
+            }
+
+            const listCetak = document.getElementById('list-cetak-laporan');
+            listCetak.innerHTML = '';
+            
+            if(dataTerfilter.length === 0) {
+                listCetak.innerHTML = `<div class="text-center py-6 text-slate-400 italic text-sm border-2 border-dashed rounded-xl">Tidak ada laporan yang sesuai dengan kriteria filter.</div>`;
+                return;
+            }
+
+            [...dataTerfilter].reverse().forEach(job => {
+                const materialsText = (job.materialDiganti && job.materialDiganti.length > 0) ? job.materialDiganti.join(', ') : 'Tidak ada material';
+                listCetak.innerHTML += `
+                    <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" value="${job.id}" class="chk-laporan mt-1 w-4 h-4 text-emerald-600 rounded">
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-bold text-slate-700">${job.tiang} <span class="text-[10px] text-emerald-600 font-normal bg-emerald-50 px-2 py-0.5 rounded-full ml-1">${job.wilayah || 'Lainnya'}</span></span>
+                                <span class="text-xs text-slate-500">${job.tanggal} ${job.waktu}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-1">Barang: <span class="font-medium">${materialsText}</span></p>
+                        </div>
+                    </label>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function toggleSelectAll(source) { document.querySelectorAll('.chk-laporan').forEach(cb => cb.checked = source.checked); }
+
+        function resetFilters() {
+            document.getElementById('filter-date-start').value = '';
+            document.getElementById('filter-date-end').value = '';
+            document.getElementById('filter-wilayah').value = 'Semua';
+            renderMenuCetak();
+        }
+
+        function cetakRekapMaterial() {
+            const filterStartRaw = document.getElementById('filter-date-start').value;
+            const filterEndRaw = document.getElementById('filter-date-end').value;
+            const filterWilayah = document.getElementById('filter-wilayah').value;
+
+            const filterStartDate = filterStartRaw ? dapatkanDateObject(filterStartRaw) : null;
+            const filterEndDate = filterEndRaw ? dapatkanDateObject(filterEndRaw) : null;
+            if (filterEndDate) filterEndDate.setHours(23, 59, 59, 999);
+
+            const dataTerfilter = dataPekerjaan.filter(job => {
+                if (filterWilayah !== 'Semua' && job.wilayah !== filterWilayah) return false;
+                if (filterStartDate || filterEndDate) {
+                    let jobDate = dapatkanDateObject(job.tanggal);
+                    if (!jobDate) return false;
+                    if (filterStartDate && jobDate < filterStartDate) return false;
+                    if (filterEndDate && jobDate > filterEndDate) return false;
+                }
+                return true;
+            });
+
+            const rekap = {};
+            dataTerfilter.forEach(job => { if(job.materialDiganti) job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; }); });
+            
+            let tableRows = '';
+            let totalBarang = 0;
+            Object.keys(rekap).forEach((mat, idx) => {
+                tableRows += `<tr><td style="border:1px solid #000; padding:8px; text-align:center;">${idx+1}</td><td style="border:1px solid #000; padding:8px;">${mat}</td><td style="border:1px solid #000; padding:8px; text-align:center; font-weight:bold;">${rekap[mat]}</td></tr>`;
+                totalBarang += rekap[mat];
+            });
+
+            if(totalBarang === 0) return Swal.fire('Kosong', 'Belum ada data barang yang diganti dalam filter terpilih.', 'info');
+
+            const infoFilter = `Mulai: ${filterStartRaw || 'Semua'} s.d ${filterEndRaw || 'Semua'} | Wilayah: ${filterWilayah}`;
+
+            const html = `
+                <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px; margin-bottom:20px;">
+                    <h1 style="font-size:24px; font-weight:bold; margin:0; font-family: sans-serif;">LAPORAN REKAPITULASI MATERIAL PJU</h1>
+                    <p style="margin:5px 0 0 0; font-family: sans-serif; font-size:12px; color: #475569;">${infoFilter}</p>
+                </div>
+                <p style="font-family: sans-serif; font-size: 13px;">Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}</p>
+                <table style="width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; font-family: sans-serif;">
+                    <thead>
+                        <tr style="background:#f1f1f1;">
+                            <th style="border:1px solid #000; padding:8px; width:10%;">No</th>
+                            <th style="border:1px solid #000; padding:8px; width:60%;">Nama Material</th>
+                            <th style="border:1px solid #000; padding:8px; width:30%;">Jumlah Terpakai</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                    <tfoot>
+                        <tr><td colspan="2" style="border:1px solid #000; padding:8px; text-align:right; font-weight:bold;">TOTAL BARANG TERPAKAI:</td><td style="border:1px solid #000; padding:8px; text-align:center; font-weight:bold;">${totalBarang} Unit</td></tr>
+                    </tfoot>
+                </table>
+            `;
+            document.getElementById('print-area').innerHTML = html; 
+            
+            setTimeout(() => { window.print(); }, 800);
+        }
+
         function cetakLaporanPilihan() {
             const selectedIds = Array.from(document.querySelectorAll('.chk-laporan:checked')).map(cb => cb.value);
             if(selectedIds.length === 0) return Swal.fire('Pilih Laporan', 'Harap ceklis minimal 1 laporan.', 'warning');
