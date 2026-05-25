@@ -151,22 +151,126 @@
                 <h2 class="text-base font-bold mb-4 flex items-center gap-2 text-slate-700">
                     <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> Checklist Material Diganti
                 </h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100" id="checklist-container">
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 250W</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 150W</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ignitor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ignitor</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Twisted" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Twisted</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel ASPAN" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel ASPAN</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 250W</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 150W</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Fotocell" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Fotocell</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Piercing" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Piercing</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kontaktor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kontaktor</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="MCB" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> MCB</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Draiver LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Draiver LED</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu LED</label>
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Kontrol" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Kontrol</label>
-                </div>
+                
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100" id="checklist-container">
+
+    <!-- TEMPLATE ITEM -->
+    <!-- Copy format ini jika ingin tambah material baru -->
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Ballas 250W" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Ballas 250W
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Ballas 150W" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Ballas 150W
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Ignitor" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Ignitor
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Kabel Twisted" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Kabel Twisted
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Kabel ASPAN" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Kabel ASPAN
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Lampu 250W" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Lampu 250W
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Lampu 150W" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Lampu 150W
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Fotocell" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Fotocell
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Piercing" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Piercing
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Kontaktor" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Kontaktor
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="MCB" class="material-check w-4 h-4 text-emerald-600 rounded">
+            MCB
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Draiver LED" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Draiver LED
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Lampu LED" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Lampu LED
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
+            <input type="checkbox" value="Kabel Kontrol" class="material-check w-4 h-4 text-emerald-600 rounded">
+            Kabel Kontrol
+        </label>
+        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
+    </div>
+
+</div>
+
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -357,7 +461,21 @@
                     let materialText = String(r[4] || ''); let materialArray = [];
                     if(materialText.includes('Barang: ')) {
                         let extracted = materialText.split(' | ')[0].replace('Barang: ', '');
-                        materialArray = extracted.split(', ');
+                        materialArray = extracted.split(', ').map(item => {
+                            const match = item.match(/(.+) \((\d+)\)/);
+
+                            if(match) {
+                                return {
+                                    nama: match[1].trim(),
+                                    qty: parseInt(match[2])
+                                };
+                            }
+
+                            return {
+                                nama: item.trim(),
+                                qty: 1
+                            };
+                        });
                     }
 
                     dataPekerjaan.push({
@@ -450,8 +568,19 @@
             if (!idTiangRaw || !koordinat) return Swal.fire('Peringatan', 'ID Tiang & Koordinat wajib diisi!', 'warning');
             const idTiang = `${idTiangRaw} [${wilayahSelected}]`;
             const cbMaterial = document.querySelectorAll('.material-check:checked');
-            const arrMaterial = Array.from(cbMaterial).map(cb => cb.value);
-            let materialGabungan = arrMaterial.length > 0 ? "Barang: " + arrMaterial.join(', ') : "Tidak ada barang terganti";
+
+            const arrMaterial = Array.from(cbMaterial).map(cb => {
+                const wrapper = cb.closest('div');
+                const qtyInput = wrapper.querySelector('.material-qty');
+
+                return {
+                    nama: cb.value,
+                    qty: parseInt(qtyInput.value || 1)
+                };
+            });
+            let materialGabungan = arrMaterial.length > 0
+                ? "Barang: " + arrMaterial.map(m => `${m.nama} (${m.qty})`).join(', ')
+                : "Tidak ada barang terganti";
             if(deskripsi) materialGabungan += ` | Catatan: ${deskripsi}`;
 
             const koorSplit = koordinat.split(','); const lat = parseFloat(koorSplit[0].trim()); const lng = parseFloat(koorSplit[1].trim());
@@ -504,7 +633,9 @@
                     iconAnchor: [10, 10]
                 });
 
-                let materials = (d.materialDiganti && d.materialDiganti.length > 0) ? d.materialDiganti.join(', ') : 'Hanya Perawatan';
+                let materials = (d.materialDiganti && d.materialDiganti.length > 0)
+                    ? d.materialDiganti.map(m => `${m.nama} (${m.qty})`).join(', ')
+                    : 'Hanya Perawatan';
                 let imgSrc = d.photos.sel || 'https://placehold.co/400x300?text=Tidak+Ada+Foto';
                 
                 let popupHTML = `
@@ -585,7 +716,11 @@
             const rekap = {};
             dataTerfilter.forEach(job => {
                 if(job.materialDiganti && Array.isArray(job.materialDiganti)) {
-                    job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; });
+                    job.materialDiganti.forEach(item => {
+                    if(item && item.nama) {
+                        rekap[item.nama] = (rekap[item.nama] || 0) + item.qty;
+                    }
+                });
                 }
             });
 
@@ -615,7 +750,9 @@
             }
 
             [...dataTerfilter].reverse().forEach(job => {
-                const materialsText = (job.materialDiganti && job.materialDiganti.length > 0) ? job.materialDiganti.join(', ') : 'Tidak ada material';
+                const materialsText = (job.materialDiganti && job.materialDiganti.length > 0)
+                ? job.materialDiganti.map(m => `${m.nama} (${m.qty})`).join(', ')
+                : 'Tidak ada material';
                 listCetak.innerHTML += `
                     <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
                         <input type="checkbox" value="${job.id}" class="chk-laporan mt-1 w-4 h-4 text-emerald-600 rounded">
@@ -662,7 +799,11 @@
             });
 
             const rekap = {};
-            dataTerfilter.forEach(job => { if(job.materialDiganti) job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; }); });
+            dataTerfilter.forEach(job => { if(job.materialDiganti) job.materialDiganti.forEach(item => {
+                    if(item && item.nama) {
+                        rekap[item.nama] = (rekap[item.nama] || 0) + item.qty;
+                    }
+                }); });
             
             let tableRows = '';
             let totalBarang = 0;
