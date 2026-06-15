@@ -734,6 +734,7 @@
                 const materialsText = (data.materialDiganti && data.materialDiganti.length > 0) ? data.materialDiganti.join(', ') : 'Tidak ada (Hanya Perawatan)';
                 
                 let photoHTML = '';
+                let tableHTML = '';
                 
                 // Logika pemisahan cetak 5 foto vs 1 foto
                 if (mode === 'lengkap') {
@@ -743,18 +744,8 @@
                         <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">3. Kondisi Selesai (Menyala)</p><img src="${data.photos.sel}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">4. Barang Bekas/Rusak</p><img src="${data.photos.lam}" class="print-image" ${fallbackImg}></div></div>
                         <div style="width:50%; margin:0 auto; margin-bottom:30px;"><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">5. Material Baru</p><img src="${data.photos.bar}" class="print-image" ${fallbackImg}></div>
                     `;
-                } else {
-                    photoHTML = `
-                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">FOTO HASIL PEKERJAAN (SELESAI)</h3>
-                        <div style="width:80%; margin:0 auto; margin-bottom:30px; text-align: center;">
-                            <img src="${data.photos.sel}" class="print-image" style="height: 350px; display: block; margin: 0 auto;" ${fallbackImg}>
-                        </div>
-                    `;
-                }
-
-                html += `
-                    <div style="max-width:800px; margin:0 auto; font-family:sans-serif;" class="${index < laporanDipilih.length - 1 ? 'print-page-break' : ''}">
-                        <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px; margin-bottom:20px;"><h1 style="font-size:22px; font-weight:bold; margin:0; text-transform:uppercase;">Laporan Pekerjaan PJU</h1><p style="margin:5px 0 0 0; font-size:14px;">Sistem Informasi Pemeliharaan</p></div>
+                    // Tabel Lengkap
+                    tableHTML = `
                         <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; width:30%; background:#f9f9f9;">ID Tiang / Lokasi</td><td style="border:1px solid #ccc; padding:8px;">${data.tiang} [${data.wilayah || 'Lainnya'}]</td></tr>
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Waktu Pekerjaan</td><td style="border:1px solid #ccc; padding:8px;">${data.tanggal} | ${data.waktu}</td></tr>
@@ -762,6 +753,27 @@
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Material Diganti</td><td style="border:1px solid #ccc; padding:8px; font-weight:bold; color:blue;">${materialsText}</td></tr>
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Catatan Teknis</td><td style="border:1px solid #ccc; padding:8px;">${data.deskripsi || '-'}</td></tr>
                         </table>
+                    `;
+                } else {
+                    photoHTML = `
+                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">FOTO HASIL PEKERJAAN (SELESAI)</h3>
+                        <div style="width:80%; margin:0 auto; margin-bottom:30px; text-align: center;">
+                            <img src="${data.photos.sel}" class="print-image" style="height: 350px; display: block; margin: 0 auto;" ${fallbackImg}>
+                        </div>
+                    `;
+                    // Tabel Singkat (Hanya ID dan Koordinat)
+                    tableHTML = `
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; width:30%; background:#f9f9f9;">ID Tiang / Lokasi</td><td style="border:1px solid #ccc; padding:8px;">${data.tiang} [${data.wilayah || 'Lainnya'}]</td></tr>
+                            <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Koordinat</td><td style="border:1px solid #ccc; padding:8px;"><a href="https://maps.google.com/?q=${data.lat},${data.lng}" target="_blank" style="color:#2563eb; text-decoration:none; font-weight:bold;">${data.lat}, ${data.lng} <span style="font-size:11px; text-decoration:underline;">(Buka di Google Maps)</span></a></td></tr>
+                        </table>
+                    `;
+                }
+
+                html += `
+                    <div style="max-width:800px; margin:0 auto; font-family:sans-serif;" class="${index < laporanDipilih.length - 1 ? 'print-page-break' : ''}">
+                        <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px; margin-bottom:20px;"><h1 style="font-size:22px; font-weight:bold; margin:0; text-transform:uppercase;">LAPORAN PEKERJAAN PJU</h1><p style="margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#059669;">KARIMUNKU TERANG</p></div>
+                        ${tableHTML}
                         ${photoHTML}
                     </div>
                 `;
