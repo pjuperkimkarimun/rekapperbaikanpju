@@ -5,15 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KARIMUNKU TERANG - Monitoring Kawasan Umum</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- HTML2Canvas (Untuk Fitur Download Peta) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -55,6 +60,7 @@
 </head>
 <body class="text-slate-800 pb-24">
 
+    <!-- HEADER -->
     <header class="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-md no-print">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -72,6 +78,7 @@
         </div>
     </header>
 
+    <!-- NAVIGATION TABS -->
     <div class="max-w-4xl mx-auto px-4 mt-6 no-print">
         <div class="flex flex-wrap bg-slate-200 p-1 rounded-xl gap-1">
             <button onclick="switchTab('form')" id="btn-tab-form" class="flex-1 min-w-[100px] py-2 px-3 rounded-lg font-medium text-sm transition-all bg-white shadow text-emerald-700 flex justify-center items-center gap-2">
@@ -86,8 +93,10 @@
         </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <main class="max-w-4xl mx-auto p-4 mt-2 no-print" id="main-content">
         
+        <!-- ==================== TAB 1: FORM INPUT ==================== -->
         <section id="tab-form" class="space-y-6">
             
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -151,126 +160,22 @@
                 <h2 class="text-base font-bold mb-4 flex items-center gap-2 text-slate-700">
                     <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> Checklist Material Diganti
                 </h2>
-                
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100" id="checklist-container">
-
-    <!-- TEMPLATE ITEM -->
-    <!-- Copy format ini jika ingin tambah material baru -->
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Ballas 250W" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Ballas 250W
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Ballas 150W" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Ballas 150W
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Ignitor" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Ignitor
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Kabel Twisted" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Kabel Twisted
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Kabel ASPAN" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Kabel ASPAN
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Lampu 250W" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Lampu 250W
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Lampu 150W" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Lampu 150W
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Fotocell" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Fotocell
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Piercing" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Piercing
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Kontaktor" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Kontaktor
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="MCB" class="material-check w-4 h-4 text-emerald-600 rounded">
-            MCB
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Draiver LED" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Draiver LED
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Lampu LED" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Lampu LED
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-        <label class="flex items-center gap-2 text-sm text-slate-700 flex-1 cursor-pointer">
-            <input type="checkbox" value="Kabel Kontrol" class="material-check w-4 h-4 text-emerald-600 rounded">
-            Kabel Kontrol
-        </label>
-        <input type="number" min="1" value="0" class="material-qty w-16 px-2 py-1 border rounded text-center">
-    </div>
-
-</div>
-
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100" id="checklist-container">
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 250W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ballas 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ballas 150W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Ignitor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Ignitor</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Twisted" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Twisted</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel ASPAN" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel ASPAN</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 250W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 250W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu 150W" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu 150W</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Fotocell" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Fotocell</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Piercing" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Piercing</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kontaktor" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kontaktor</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="MCB" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> MCB</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Draiver LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Draiver LED</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Lampu LED" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Lampu LED</label>
+                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input type="checkbox" value="Kabel Kontrol" class="material-check w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"> Kabel Kontrol</label>
+                </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -294,6 +199,7 @@
             
         </section>
 
+        <!-- ==================== TAB 2: PETA ==================== -->
         <section id="tab-map" class="hidden space-y-6">
             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100" id="map-container">
                 <div class="flex justify-between items-center mb-3">
@@ -312,6 +218,7 @@
             </div>
         </section>
 
+        <!-- ==================== TAB 3: MENU CETAK & REKAP ==================== -->
         <section id="tab-cetak" class="hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
@@ -369,14 +276,22 @@
                 </div>
             </div>
 
+            <!-- MODIFIKASI: Tombol Pilihan Cetak Laporan -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex justify-between items-center mb-4 border-b pb-3 border-slate-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b pb-3 border-slate-100 gap-3">
                     <h2 class="text-base font-bold flex items-center gap-2 text-slate-700">
                         <i data-lucide="file-check-2" class="w-5 h-5 text-emerald-500"></i> Pilih Laporan Untuk Dicetak
                     </h2>
-                    <button onclick="cetakLaporanPilihan()" class="text-sm bg-emerald-600 text-white hover:bg-emerald-700 py-1.5 px-3 rounded-lg font-bold flex items-center gap-2 transition-colors">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan
-                    </button>
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Tombol Cetak Lengkap -->
+                        <button onclick="cetakLaporanPilihan('lengkap')" class="text-xs bg-emerald-600 text-white hover:bg-emerald-700 py-1.5 px-3 rounded-lg font-bold flex items-center gap-1 transition-colors">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Cetak Lengkap
+                        </button>
+                        <!-- Tombol Cetak Singkat (Baru) -->
+                        <button onclick="cetakLaporanPilihan('singkat')" class="text-xs bg-blue-600 text-white hover:bg-blue-700 py-1.5 px-3 rounded-lg font-bold flex items-center gap-1 transition-colors">
+                            <i data-lucide="image" class="w-4 h-4"></i> Cetak Singkat (Foto Selesai)
+                        </button>
+                    </div>
                 </div>
                 <div class="flex justify-between items-center mb-3">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
@@ -414,7 +329,6 @@
             const match = url.match(/\/d\/(.+?)\//);
             if (match && match[1]) fileId = match[1];
             else { try { const urlParams = new URL(url).searchParams; fileId = urlParams.get('id'); } catch(e) {} }
-            // Perbaikan URL Bypass gambar menggunakan HTTPS agar sesuai dengan protokol Netlify
             if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
             return url;
         }
@@ -461,21 +375,7 @@
                     let materialText = String(r[4] || ''); let materialArray = [];
                     if(materialText.includes('Barang: ')) {
                         let extracted = materialText.split(' | ')[0].replace('Barang: ', '');
-                        materialArray = extracted.split(', ').map(item => {
-                            const match = item.match(/(.+) \((\d+)\)/);
-
-                            if(match) {
-                                return {
-                                    nama: match[1].trim(),
-                                    qty: parseInt(match[2])
-                                };
-                            }
-
-                            return {
-                                nama: item.trim(),
-                                qty: 1
-                            };
-                        });
+                        materialArray = extracted.split(', ');
                     }
 
                     dataPekerjaan.push({
@@ -568,19 +468,8 @@
             if (!idTiangRaw || !koordinat) return Swal.fire('Peringatan', 'ID Tiang & Koordinat wajib diisi!', 'warning');
             const idTiang = `${idTiangRaw} [${wilayahSelected}]`;
             const cbMaterial = document.querySelectorAll('.material-check:checked');
-
-            const arrMaterial = Array.from(cbMaterial).map(cb => {
-                const wrapper = cb.closest('div');
-                const qtyInput = wrapper.querySelector('.material-qty');
-
-                return {
-                    nama: cb.value,
-                    qty: parseInt(qtyInput.value || 1)
-                };
-            });
-            let materialGabungan = arrMaterial.length > 0
-                ? "Barang: " + arrMaterial.map(m => `${m.nama} (${m.qty})`).join(', ')
-                : "Tidak ada barang terganti";
+            const arrMaterial = Array.from(cbMaterial).map(cb => cb.value);
+            let materialGabungan = arrMaterial.length > 0 ? "Barang: " + arrMaterial.join(', ') : "Tidak ada barang terganti";
             if(deskripsi) materialGabungan += ` | Catatan: ${deskripsi}`;
 
             const koorSplit = koordinat.split(','); const lat = parseFloat(koorSplit[0].trim()); const lng = parseFloat(koorSplit[1].trim());
@@ -633,9 +522,7 @@
                     iconAnchor: [10, 10]
                 });
 
-                let materials = (d.materialDiganti && d.materialDiganti.length > 0)
-                    ? d.materialDiganti.map(m => `${m.nama} (${m.qty})`).join(', ')
-                    : 'Hanya Perawatan';
+                let materials = (d.materialDiganti && d.materialDiganti.length > 0) ? d.materialDiganti.join(', ') : 'Hanya Perawatan';
                 let imgSrc = d.photos.sel || 'https://placehold.co/400x300?text=Tidak+Ada+Foto';
                 
                 let popupHTML = `
@@ -716,11 +603,7 @@
             const rekap = {};
             dataTerfilter.forEach(job => {
                 if(job.materialDiganti && Array.isArray(job.materialDiganti)) {
-                    job.materialDiganti.forEach(item => {
-                    if(item && item.nama) {
-                        rekap[item.nama] = (rekap[item.nama] || 0) + item.qty;
-                    }
-                });
+                    job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; });
                 }
             });
 
@@ -750,9 +633,7 @@
             }
 
             [...dataTerfilter].reverse().forEach(job => {
-                const materialsText = (job.materialDiganti && job.materialDiganti.length > 0)
-                ? job.materialDiganti.map(m => `${m.nama} (${m.qty})`).join(', ')
-                : 'Tidak ada material';
+                const materialsText = (job.materialDiganti && job.materialDiganti.length > 0) ? job.materialDiganti.join(', ') : 'Tidak ada material';
                 listCetak.innerHTML += `
                     <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
                         <input type="checkbox" value="${job.id}" class="chk-laporan mt-1 w-4 h-4 text-emerald-600 rounded">
@@ -799,11 +680,7 @@
             });
 
             const rekap = {};
-            dataTerfilter.forEach(job => { if(job.materialDiganti) job.materialDiganti.forEach(item => {
-                    if(item && item.nama) {
-                        rekap[item.nama] = (rekap[item.nama] || 0) + item.qty;
-                    }
-                }); });
+            dataTerfilter.forEach(job => { if(job.materialDiganti) job.materialDiganti.forEach(item => { if(item) rekap[item] = (rekap[item] || 0) + 1; }); });
             
             let tableRows = '';
             let totalBarang = 0;
@@ -841,19 +718,40 @@
             setTimeout(() => { window.print(); }, 800);
         }
 
-        function cetakLaporanPilihan() {
+        // FUNGSI CETAK DENGAN PILIHAN MODE (LENGKAP ATAU SINGKAT)
+        function cetakLaporanPilihan(mode = 'lengkap') {
             const selectedIds = Array.from(document.querySelectorAll('.chk-laporan:checked')).map(cb => cb.value);
             if(selectedIds.length === 0) return Swal.fire('Pilih Laporan', 'Harap ceklis minimal 1 laporan.', 'warning');
 
             const laporanDipilih = dataPekerjaan.filter(job => selectedIds.includes(String(job.id)));
             let html = '';
 
-            Swal.fire({ title: 'Menyiapkan Dokumen...', text: 'Sedang memuat semua foto untuk dicetak, harap tunggu sebentar.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Menyiapkan Dokumen...', text: 'Sedang memuat foto untuk dicetak, harap tunggu sebentar.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const fallbackImg = "onerror=\"this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/999999?text=Tidak+Ada+Foto';\"";
 
             laporanDipilih.forEach((data, index) => {
                 const materialsText = (data.materialDiganti && data.materialDiganti.length > 0) ? data.materialDiganti.join(', ') : 'Tidak ada (Hanya Perawatan)';
+                
+                let photoHTML = '';
+                
+                // Logika pemisahan cetak 5 foto vs 1 foto
+                if (mode === 'lengkap') {
+                    photoHTML = `
+                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">DOKUMENTASI VISUAL</h3>
+                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">1. Kondisi Sebelum</p><img src="${data.photos.seb}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">2. Sedang Dikerjakan</p><img src="${data.photos.sed}" class="print-image" ${fallbackImg}></div></div>
+                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">3. Kondisi Selesai (Menyala)</p><img src="${data.photos.sel}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">4. Barang Bekas/Rusak</p><img src="${data.photos.lam}" class="print-image" ${fallbackImg}></div></div>
+                        <div style="width:50%; margin:0 auto; margin-bottom:30px;"><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">5. Material Baru</p><img src="${data.photos.bar}" class="print-image" ${fallbackImg}></div>
+                    `;
+                } else {
+                    photoHTML = `
+                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">FOTO HASIL PEKERJAAN (SELESAI)</h3>
+                        <div style="width:80%; margin:0 auto; margin-bottom:30px; text-align: center;">
+                            <img src="${data.photos.sel}" class="print-image" style="height: 350px; display: block; margin: 0 auto;" ${fallbackImg}>
+                        </div>
+                    `;
+                }
+
                 html += `
                     <div style="max-width:800px; margin:0 auto; font-family:sans-serif;" class="${index < laporanDipilih.length - 1 ? 'print-page-break' : ''}">
                         <div style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px; margin-bottom:20px;"><h1 style="font-size:22px; font-weight:bold; margin:0; text-transform:uppercase;">Laporan Pekerjaan PJU</h1><p style="margin:5px 0 0 0; font-size:14px;">Sistem Informasi Pemeliharaan</p></div>
@@ -864,10 +762,7 @@
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Material Diganti</td><td style="border:1px solid #ccc; padding:8px; font-weight:bold; color:blue;">${materialsText}</td></tr>
                             <tr><td style="border:1px solid #ccc; padding:8px; font-weight:bold; background:#f9f9f9;">Catatan Teknis</td><td style="border:1px solid #ccc; padding:8px;">${data.deskripsi || '-'}</td></tr>
                         </table>
-                        <h3 style="text-align:center; background:#222; color:white; padding:5px; margin-bottom:15px; font-size:14px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">DOKUMENTASI VISUAL</h3>
-                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">1. Kondisi Sebelum</p><img src="${data.photos.seb}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">2. Sedang Dikerjakan</p><img src="${data.photos.sed}" class="print-image" ${fallbackImg}></div></div>
-                        <div class="print-grid" style="margin-bottom:15px;"><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">3. Kondisi Selesai (Menyala)</p><img src="${data.photos.sel}" class="print-image" ${fallbackImg}></div><div><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">4. Barang Bekas/Rusak</p><img src="${data.photos.lam}" class="print-image" ${fallbackImg}></div></div>
-                        <div style="width:50%; margin:0 auto; margin-bottom:30px;"><p style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:4px;">5. Material Baru</p><img src="${data.photos.bar}" class="print-image" ${fallbackImg}></div>
+                        ${photoHTML}
                     </div>
                 `;
             });
